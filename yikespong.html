@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pong Mini</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="gameCanvas" width="400" height="200"></canvas>
+
+    <script>
+        // Get the canvas element and its context
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Ball variables
+        let ballX = canvas.width / 2;
+        let ballY = canvas.height / 2;
+        let ballRadius = 10;
+
+        // Randomize initial ball direction and speed
+        let dx = Math.random() * 4 - 2; // Random number between -2 and 2
+        let dy = Math.random() * 4 - 2; // Random number between -2 and 2
+        let changeDirectionCounter = 0;
+        const changeDirectionInterval = 100; // Number of frames before changing direction
+        const dartInterval = 300; // Number of frames before darting towards the bottom
+        let dartCounter = 0;
+
+        // Paddle variables
+        let paddleHeight = 10;
+        let paddleWidth = 75;
+        let paddleX = (canvas.width - paddleWidth) / 2;
+
+        // Mouse event listener
+        document.addEventListener('mousemove', mouseMoveHandler);
+
+        // Mouse move handler
+        function mouseMoveHandler(e) {
+            const relativeX = e.clientX - canvas.offsetLeft;
+            if (relativeX > 0 && relativeX < canvas.width) {
+                paddleX = relativeX - paddleWidth / 2;
+            }
+        }
+
+        // Reset the game state
+        function resetGame() {
+            ballX = canvas.width / 2;
+            ballY = canvas.height / 2;
+            // Randomize ball direction and speed after reset
+            dx = Math.random() * 4 - 2; // Random number between -2 and 2
+            dy = Math.random() * 4 - 2; // Random number between -2 and 2
+            changeDirectionCounter = 0;
+            dartCounter = 0;
+        }
+
+        // Update the game state
+        function update() {
+            // Move the ball
+            ballX += dx;
+            ballY += dy;
+
+            // Bounce off the walls
+            if (ballX + dx > canvas.width - ballRadius || ballX + dx < ballRadius) {
+                dx = -dx;
+            }
+            if (ballY + dy > canvas.height - ballRadius || ballY + dy < ballRadius) {
+                dy = -dy;
+            }
+
+            // Check if it's time to change direction
+            changeDirectionCounter++;
+            if (changeDirectionCounter >= changeDirectionInterval) {
+                dx = Math.random() * 4 - 2; // Random number between -2 and 2
+                dy = Math.random() * 4 - 2; // Random number between -2 and 2
+                changeDirectionCounter = 0;
+            }
+
+            // Check if it's time to dart towards the bottom
+            dartCounter++;
+            if (dartCounter >= dartInterval) {
+                // Move towards the bottom at a random speed
+                dx = Math.random() * 4 - 2; // Random number between -2 and 2
+                dy = Math.random() * 4 + 1; // Random number between 1 and 5
+                dartCounter = 0;
+            }
+
+            // Check if the ball has touched the bottom of the canvas
+            if (ballY >= canvas.height - 10) { // Adjusted condition here
+                // Game Over
+                alert('LOSER');
+                // Reset the game
+                resetGame();
+            }
+
+            // Check if the ball has hit the paddle
+            if (ballY + dy > canvas.height - ballRadius - paddleHeight && ballX > paddleX && ballX < paddleX + paddleWidth) {
+                dy = -dy;
+                // Randomly change direction occasionally
+                if (Math.random() < 0.2) {
+                    dx = Math.random() * 4 - 2; // Random number between -2 and 2
+                    dy = Math.random() * 4 - 2; // Random number between -2 and 2
+                }
+            }
+        }
+
+        // Draw the game elements
+        function draw() {
+            // Clear the canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw the ball
+            ctx.beginPath();
+            ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
+            ctx.fillStyle = '#0095DD';
+            ctx.fill();
+            ctx.closePath();
+
+            // Draw the paddle
+            ctx.beginPath();
+            ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
+            ctx.fillStyle = '#0095DD';
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        // Main game loop
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Start the game loop
+        gameLoop();
+    </script>
+
+</body>
+</html>
