@@ -39,16 +39,31 @@
         let paddleWidth = 75;
         let paddleX = (canvas.width - paddleWidth) / 2;
 
-        // Mouse event listener
-        document.addEventListener('mousemove', mouseMoveHandler);
+        // Event listeners for both mouse and touch input
+canvas.addEventListener('mousemove', inputHandler);
+canvas.addEventListener('touchmove', inputHandler);
 
-        // Mouse move handler
-        function mouseMoveHandler(e) {
-            const relativeX = e.clientX - canvas.offsetLeft;
-            if (relativeX > 0 && relativeX < canvas.width) {
-                paddleX = relativeX - paddleWidth / 2;
-            }
-        }
+// Input handler function to handle both mouse and touch events
+function inputHandler(e) {
+    // Check if the event is a touch event
+    const isTouchEvent = e.type.startsWith('touch');
+    
+    // Get the input position relative to the canvas
+    let inputX;
+    if (isTouchEvent) {
+        // Touch event
+        inputX = e.touches[0].clientX - canvas.offsetLeft;
+    } else {
+        // Mouse event
+        inputX = e.clientX - canvas.offsetLeft;
+    }
+    
+    // Update the paddle position based on input
+    if (inputX > 0 && inputX < canvas.width) {
+        paddleX = inputX - paddleWidth / 2;
+    }
+}
+
 
         // Reset the game state
         function resetGame() {
